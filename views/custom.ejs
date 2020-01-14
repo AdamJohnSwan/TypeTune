@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Type Tune</title>
+	<link rel="shortcut icon" href="images/note.png" type="image/x-icon">
+	<link href="css/style.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile-style.css" />
+</head>
+
+<body>
+
+<a href="/"><img id="arrow" src="images/arrow.png"></a>
+<div class='main'>
+<div id='container'>
+
+<div id='box'>
+	<button id="play">Play</button>
+</div>
+
+</div>
+</div>                                                
+
+</body>
+
+<script>
+	var audio = new Audio('custom.mp3');
+
+	function playIt() {
+		audio.play();
+	}
+</script>
+
+</html>

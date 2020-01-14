@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>Type Tune</title>
+<link rel="shortcut icon" href="images/note.png" type="image/x-icon">
+<link href="css/style.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile-style.css" />
+</head>
+
+<body>
+<a href="/"><img id="arrow" src="images/arrow.png"></a>
+<div class='main'>
+<div id='container'>
+<div id='box'>
+	<div class="border">
+		<div id='play-bar'></div>
+	</div>
+	<button id="play">Play me</button>
+	<button id="stop">Stop</button>
+</div>	
+</div>
+</div>
+</body>
+
+<script src="jquery-3.3.1.min.js"></script>
+<script src="soundfont-player.min.js"></script>
+<script src="midiplayer.min.js"></script>
+<script>
+
+$("#play").on('click touchstart', function () {
+	Player.play();
+    });
+$('#stop').on('click touchstart', function() {
+	Player.stop();
+});
+
+var MidiPlayer = MidiPlayer;
+var loadFile, Player;
+var AudioContext = window.AudioContext || window.webkitAudioContext || false; 
+var ac = new AudioContext || new webkitAudioContext;
+
+Soundfont.instrument(ac, 'https://raw.githubusercontent.com/gleitz/midi-js-soundfonts/gh-pages/MusyngKite/orchestral_harp-mp3.js').then(function (instrument) {
+
+	loadUri = function(dataUri) {
+		Player = new MidiPlayer.Player(function(event) {
+			if (event.name == 'Note on' && event.velocity > 0) {
+				instrument.play(event.noteName, ac.currentTime, {gain:event.velocity/100});
+			}
+		document.getElementById('play-bar').style.width = 100 - Player.getSongPercentRemaining() + '%';
+		Player.tempo = 200;
+		});
+
+		Player.loadDataUri(dataUri);
+		//Player.play();
+	}
+	loadUri("<%- output %>");
+});
+
+
+</script>
+
+</html>

@@ -1,0 +1,65 @@
+html, body {
+        height: 100%;
+        background-color: #f5f0f0
+}
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+form, #box {
+        height: 25%;
+        width: 400px;
+        margin: 0 auto;
+}
+input, textarea, button {
+        display: block;
+	width:100%;
+}
+textarea {
+        resize: none;
+        height: 75%;
+}
+input[type='submit'], button {
+	cursor:pointer;
+        height: 25%;
+        background-color:#337ab7;
+        color:white;
+        border:0;
+}
+input[type='submit']:hover, #play:hover {
+	background-color:#204d74;
+}
+#container {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+}
+#play {
+	margin-bottom:5px;
+}
+#stop {
+	margin-top:5px;
+	background-color:#d9534f;
+}
+#stop:hover {
+	background-color:#c9302c;
+}
+#arrow {
+	position:absolute;
+	left:5px;
+	right:5px;
+	width:50px;
+}
+#play-bar {
+        height:20px;
+        background: rgb(51, 195, 240);
+        width:0%;
+}
+.border {
+        border:1px solid #ccc;
+        height:20px;
+        margin-bottom:20px;
+        background:#f7f7f7;
+}
+

@@ -1,0 +1,35 @@
+form, #box {
+    height: 75%;
+    width: 75%;
+}
+input[type='submit'], button {
+    height: 15%;
+}
+input, textarea, button {
+    font-size:42px;
+}
+#play {
+    margin-bottom: 20px;
+}
+#stop {
+    margin-top: 20px;
+}
+.border {
+    height:50px;
+    margin-bottom:50px;
+}
+#play-bar {
+    height:50px;
+}
+input[type="range"] {
+	margin:50px 0;
+}
+#arrow {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 15%;	
+}
