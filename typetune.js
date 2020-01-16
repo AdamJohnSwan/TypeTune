@@ -36,7 +36,7 @@ app.get('/', function(req, res) {
 	characters.forEach(character => {
 		// Increase random_value using each of the characters' char code
 		random_value += character.charCodeAt(0);
-		if(vowels.find(v => v === character)) {
+		if(vowels.find(v => v === character.toLowerCase())) {
 			// Get the octave by increasing the octave every time a vowel is found in the word. 
 			// Set the octave back to one if the octave is greater than the number of vowels 
 			octave = (octave % vowels.length) + 1;
@@ -78,12 +78,17 @@ app.listen(8080);
 
 
 function getPattern(str){
+	
 	//keep only every fourth character so the song is not super long
 	let shrink = "";
-	for(let i = 0; i < str.length; i++) {
-		if (i % 4 === 0 ) {
-			shrink += str[i];
+	if(str.length > 10) {
+		for(let i = 0; i < str.length; i++) {
+			if (i % 4 === 0 ) {
+				shrink += str[i];
+			}
 		}
+	} else {
+		shrink = str;
 	}
 	let words = shrink.split(" ");
 	let pattern = "";
