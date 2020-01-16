@@ -6,12 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Adam",
+  "author": "John Labod",
   "license": "ISC",
   "dependencies": {
-    "ejs": "^2.6.1",
-    "express": "^4.16.3",
+    "ejs": "^2.7.4",
+    "express": "^4.17.1",
     "sanitize": "^2.1.0",
-    "scribbletune": "^1.0.0-alpha.6"
+    "scribbletune": "^3.2.1"
   }
 }

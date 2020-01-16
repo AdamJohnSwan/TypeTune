@@ -13,113 +13,118 @@ app.get('/', function(req, res) {
 })
 .get('/notes', function(req, res) {
 	let words = req.queryString('words');
-	if (words.toLowerCase() == "paige myers") {
-		res.render('custom.ejs');
-//		break;
+	if(!words) {
+		// query string must be present for this to work. 
+		res.redirect('/');
+		return;
 	}
 	if (words.length > 1000) {
-        words = words.substring(0, 1000);
-    }
-	let pattern = words.getPattern();
-	word = words.split("");
-	let vowels = ("aeiou").split("");
-	let vowel_count = 0;
-	let roots = ['a', 'b' ,'c', 'd', 'e', 'f', 'g'];
-
-	let json_file = fs.readFileSync("public/modes.json");
-	let content = JSON.parse(json_file);
-	let value = 0;
-	let octave = 1;
-	for(var x = 0; x < words.length; x++) {
-		value = value + words[x].charCodeAt(0);
-		if(vowels.indexOf(words[x]) >= 0 ) {
-			vowel_count += 1;
-			octave += 1;
-			if(octave > 5){ octave = 1;  }
+		words = words.substring(0, 1000);
+	}
+	
+	const characters = words.split("");
+	const vowels = ("aeiou").split("");
+	const notes = ['a', 'b' ,'c', 'd', 'e', 'f', 'g'];
+	
+	// A list of modes that scribbletune can handle
+	const json_file = fs.readFileSync("public/modes.json");
+	const content = JSON.parse(json_file);
+	
+	// random_value is used to randomly select the mode, root note, and shuffle the notes around. 
+	let random_value = 0;
+	let octave = 0;
+	characters.forEach(character => {
+		// Increase random_value using each of the characters' char code
+		random_value += character.charCodeAt(0);
+		if(vowels.find(v => v === character)) {
+			// Get the octave by increasing the octave every time a vowel is found in the word. 
+			// Set the octave back to one if the octave is greater than the number of vowels 
+			octave = (octave % vowels.length) + 1;
 		}
-	}
-	max_modes = content.modes.length;
-	value = value * 5 / max_modes;
-	while(value > max_modes) {
-		value -= max_modes;
-	}
-	let note = (vowel_count * Math.ceil(value)) % 7;
-	let mode = content.modes[Math.ceil(value-1)];
-	let scale = [];
-	while(scale.length == 0) {
-		scale = scribble.scale(roots[note], mode);
-		mode -= 1;
-	}
-	scale = scale.map(function(e) {return e + octave.toString()});
-	scale = arrayShuffle(scale, value);
-	console.log(roots[note], mode, octave);
-	console.log(scale);
+	});
+
+	const max_modes = content.modes.length;
+	const note = notes[random_value % notes.length];
+	const mode = content.modes[random_value % max_modes];
+	const scale = scribble.scale(`${note}${octave} ${mode}`);
+	
+	// Shuffle the notes around based on the random_value to create a song
+	const song = arrayShuffle(scale, random_value);
+	
+	// Convert the words into a pattern that can be used by scribbletune 
+	// x is a note on event, underscore sustains the note, and a hyphen is a note off event
+	const pattern = getPattern(words);
+	
+	console.log(note, mode, octave);
+	console.log(song);
 	console.log(pattern);
-	//changed clip.js to always end in first note in the array
-	//so the tune sounds complete
+	
 	let clip = scribble.clip({
-		notes: scale,
+		notes: song,
 		pattern: pattern
 	});
-	let file = 'public/songs/music.mid';
-	scribble.midi(clip, file);
-	fs.readFile(file, { encoding: 'base64'}, function(err, data){
-		if (err) {
-			throw err;
-		}
-		let output = 'data:audio/mid;base64,' + data;
-		res.render('notes.ejs', {
-			output: output
-		});
+	// Add the first note of the clip to the end so it sounds like a complete song
+	if(clip.length > 1 ) {
+		clip.push(clip[0]);
+	}
+	const bytes = scribble.midi(clip, null)
+	// if(err) {
+		// throw(err);
+	// }
+	const data = Buffer.from(bytes, 'binary').toString('base64')
+	const output = 'data:audio/mid;base64,' + data;
+	res.render('notes.ejs', {
+		output: output
 	});
-})
-.get('/notes', function(req, res) {
-        res.redirect('/');
 });
 app.listen(8080);
 
 
-String.prototype.getPattern = function() {
-	//get rid of some characters
-  console.log("words:", this);
-  var shrink = '';
-  for (var i=0; i<this.length; i++) {
-    if (i%4==0) shrink += this[i];
-  }
-  var pattern = "" , i, x, chr, prev_chr;
-  var cut = shrink.split(" ");
-  for (i = 0; i < cut.length; i++) {
-    pattern += "x";
-    for (x = 1; x < cut[i].length; x++) {
-        chr = cut[i].charCodeAt(x);
-        prev_chr = cut[i].charCodeAt(x - 1);
-        if(prev_chr - 5 < chr && prev_chr + 5 > chr) {
-            pattern += "x";
-        } else {
-            pattern += "_";
-        }
-    }
-    //add note offs
-    if(i - 1 != cut.length) pattern += "-";
-  }
-  return pattern;
+function getPattern(str){
+	//keep only every fourth character so the song is not super long
+	let shrink = "";
+	for(let i = 0; i < str.length; i++) {
+		if (i % 4 === 0 ) {
+			shrink += str[i];
+		}
+	}
+	let words = shrink.split(" ");
+	let pattern = "";
+	for (let wordsIndex = 0; wordsIndex < words.length; wordsIndex++) {
+		let charCode = 0;
+		let prevCharCode = 0;
+		for (let letterIndex = 0; letterIndex < words[wordsIndex].length; letterIndex++) {
+			let charCode = words[wordsIndex].charCodeAt(letterIndex);
+			//Add a new note-on event (x) whenever the degree of difference between the letters is great enough. If not then add a sustain(_).
+			if(charCode + 10 < prevCharCode || charCode - 10 > prevCharCode) {
+				pattern += "x";
+			} else {
+				pattern += "_";
+			}
+			prevCharCode = charCode;
+		}
+		//add note offs after each word except on the last iteration
+		if(wordsIndex != words.length - 1) {
+			pattern += "-";
+		}
+	}
+	return pattern;
 };
 
 function arrayShuffle(arr, seed) {
-	var currentIndex = arr.length, temporaryValue, randomIndex;
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+	
+	let temporaryValue = 0;
+	let randomIndex = 0;
+	for(let currentIndex = arr.length - 1; currentIndex >= 0; currentIndex--) {
+		// Pick a random index in the array
+		randomIndex = Math.floor(Math.abs(Math.sin(seed)) * currentIndex);
+		seed /= 2;
 
-    // Pick a remaining element..
-    randomIndex = Math.floor(Math.abs(Math.sin(seed)) * currentIndex);
-    seed /= 2;
-    currentIndex -= 1;
+		// And swap its value with the current element's value.
+		temporaryValue = arr[currentIndex];
+		arr[currentIndex] = arr[randomIndex];
+		arr[randomIndex] = temporaryValue;	
+	}
 
-    // And swap it with the current element.
-    temporaryValue = arr[currentIndex];
-    arr[currentIndex] = arr[randomIndex];
-    arr[randomIndex] = temporaryValue;
-  }
-
-  return arr;
+	return arr;
 }
