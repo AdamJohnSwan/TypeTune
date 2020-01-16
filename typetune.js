@@ -68,9 +68,6 @@ app.get('/', function(req, res) {
 		clip.push(clip[0]);
 	}
 	const bytes = scribble.midi(clip, null)
-	// if(err) {
-		// throw(err);
-	// }
 	const data = Buffer.from(bytes, 'binary').toString('base64')
 	const output = 'data:audio/mid;base64,' + data;
 	res.render('notes.ejs', {
