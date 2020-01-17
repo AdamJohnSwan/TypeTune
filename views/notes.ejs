@@ -13,10 +13,14 @@
 <a href="/"><img id="arrow" src="images/arrow.png"></a>
 <div class='main'>
 <div id='container'>
-<div id='box'>
+	<div id="spinner-loader">
+		<div class="spinner"></div>
+	</div>
+<div id='box' style="display: none">
 	<div class="border">
 		<div id='play-bar'></div>
 	</div>
+
 	<button id="play">Play</button>
 	<button id="stop">Stop</button>
 </div>	
@@ -44,11 +48,15 @@ var ac = new AudioContext || new webkitAudioContext;
 Soundfont.instrument(ac, 'https://raw.githubusercontent.com/gleitz/midi-js-soundfonts/gh-pages/MusyngKite/orchestral_harp-mp3.js').then(function (instrument) {
 
 	loadUri = function(dataUri) {
+		// Hide the loader and show the play/stop buttons
+		document.getElementById("spinner-loader").style.display = "none";
+		document.getElementById("box").style.display = "block";
+		
 		Player = new MidiPlayer.Player(function(event) {
 			if (event.name == 'Note on' && event.velocity > 0) {
 				instrument.play(event.noteName, ac.currentTime, {gain:event.velocity/100});
+				document.getElementById('play-bar').style.width = 100 - Player.getSongPercentRemaining() + '%';
 			}
-			document.getElementById('play-bar').style.width = 100 - Player.getSongPercentRemaining() + '%';
 			Player.tempo = 200;
 		});
 
