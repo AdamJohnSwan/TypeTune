@@ -81,7 +81,7 @@ function getPattern(str){
 	
 	//keep only every fourth character so the song is not super long
 	let shrink = "";
-	if(str.length > 10) {
+	if(str.length > 20) {
 		for(let i = 0; i < str.length; i++) {
 			if (i % 4 === 0 ) {
 				shrink += str[i];

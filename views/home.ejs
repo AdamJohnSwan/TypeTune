@@ -10,12 +10,35 @@
 <div id='container'>
 <form action="/notes" method="get">
 	<textarea id="words" name="words" type="input" maxLength="1000"  placeholder="Start typing some words...."></textarea>
+	<span id="word-count">0</span><span>/1000</span>
+	<span id="error-message">Please type in at least 10 characters</span>
 	<input id="submit" type="submit" value="Create Tune">
 </form>
 </div>
 </div>
 </body>
 
-
+<script>
+	var words = document.getElementById("words");
+	var count = document.getElementById("word-count");
+	var submit = document.getElementById("submit");
+	var error = document.getElementById("error-message");
+	count.innerHTML = words.value.length;
+	
+	words.addEventListener("keyup", function() {
+		amountOfWords = this.value.length;
+		count.innerHTML = amountOfWords;
+		if(amountOfWords >= 10) {
+			error.className = "hide";
+		}
+	});
+	
+	submit.addEventListener("click", function(e) {
+		if(words.value.length < 10) {
+			e.preventDefault()
+			error.className = "show";
+		}
+	});
+</script>
 
 </html>
