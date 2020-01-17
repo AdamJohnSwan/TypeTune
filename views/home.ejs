@@ -28,7 +28,7 @@
 	words.addEventListener("keyup", function() {
 		amountOfWords = this.value.length;
 		count.innerHTML = amountOfWords;
-		if(amountOfWords >= 10) {
+		if(amountOfWords >= 10 && error.className === "show") {
 			error.className = "hide";
 		}
 	});
